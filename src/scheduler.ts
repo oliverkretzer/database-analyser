@@ -22,6 +22,10 @@ export class Scheduler {
     private scheduleTask(task: ITask): void {
         const job = cron.schedule(task.schedule, async () => {
             try {
+                if (task.delay) {
+                    this.logger.info(`Delaying task ${task.name} for ${task.delay} ms`);
+                    await new Promise(resolve => setTimeout(resolve, task.delay));
+                }
                 this.logger.info(`Executing scheduled task: ${task.name}`);
                 await task.execute(this.database, this.logger);
                 this.logger.info(`Task ${task.name} completed successfully.`);

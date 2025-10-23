@@ -1,7 +1,8 @@
 import { Database } from "./database.js";
 import { LokiLogger } from "./logger.js";
 import { Scheduler } from "./scheduler.js";
-import { AnticheatTask } from "./tasks/anticheat-task.js";
+import { AnticheatTask } from "./tasks/anticheat.task.js";
+import { FactionFightTask } from "./tasks/faction-fight.task.js";
 
 class DatabaseAnalyzer {
 
@@ -15,6 +16,7 @@ class DatabaseAnalyzer {
         this.scheduler = new Scheduler(this.database, this.logger);
 
         this.scheduler.registerTask(new AnticheatTask());
+        this.scheduler.registerTask(new FactionFightTask());
 
         this.errorHandling();
         this.logger.info('Database Analyzer started with scheduled tasks.');
