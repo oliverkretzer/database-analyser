@@ -11,4 +11,8 @@ export interface PlayerFight {
     lastUpdate: Date;
     created: Date;
     analysis: FightAnalyse | null;
+    // When assigned to a faction fight this will hold the faction-fight _id
+    factionFightId?: ObjectId | null;
+    // How many times an assignment to a faction-fight was attempted. Stop trying after 2 attempts.
+    factionAssignmentAttempts?: number;
 }
