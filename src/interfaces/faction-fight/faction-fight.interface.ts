@@ -1,7 +1,7 @@
 import { ObjectId } from 'mongodb';
 
 export interface FactionFight {
-    _id?: ObjectId;
+    _id: ObjectId;
     factionId: string;
     fightIds: Array<ObjectId>;
     memberAccountIds: Array<string>;

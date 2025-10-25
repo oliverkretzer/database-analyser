@@ -20,6 +20,7 @@ export class AnticheatTask implements ITask {
             logger.error('Database connection is not established.');
             return;
         }
+        
         const newFights = await db.collection<PlayerFight>('player-fights').find({ analysis: null }).toArray();
         if (newFights.length === 0) {
             logger.info('No new player fights to analyze.');
