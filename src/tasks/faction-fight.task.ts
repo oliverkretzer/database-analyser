@@ -28,10 +28,7 @@ export class FactionFightTask implements ITask {
         const analyzedFights: PlayerFight[] = await db.collection<PlayerFight>('player-fights').find({
             analysis: { $ne: null },
             factionFightId: { $exists: false },
-            $or: [
-                { factionAssignmentAttempts: { $lt: 2 } },
-                { factionAssignmentAttempts: { $exists: false } }
-            ]
+            factionAssignmentAttempts: { $lt: 2 }
         }).toArray();
         if (analyzedFights.length === 0) {
             logger.info('No analyzed player fights to assign to faction fights.');
@@ -39,7 +36,7 @@ export class FactionFightTask implements ITask {
         }
 
         const getFactionIdForAccount = async (accountId: string): Promise<string | null> => {
-            const account = await db.collection<SimpleAccount>('accounts').findOne({ accountId });
+            const account = await db.collection<SimpleAccount>('accounts').findOne({ _id: new ObjectId(accountId) });
             return account ? account.factionId : null;
         }
 
@@ -78,31 +75,23 @@ export class FactionFightTask implements ITask {
                 }
             }
 
-            if (currentGroup.length > 0) {
-                groupedFights.push(currentGroup);
-            }
-
+            if (currentGroup.length > 0) groupedFights.push(currentGroup);
             for (const group of groupedFights) {
                 if (group.length >= 4) {
                     const memberAccountIds = Array.from(new Set(group.map(f => f.accountId)));
                     const factionFight: FactionFight = {
                         _id: new ObjectId(),
                         factionId: factionId,
-                        fightIds: group.map(f => f._id),
+                        fightIds: group.map(f => f._id.toString()),
                         memberAccountIds: memberAccountIds,
                         startTime: new Date(Math.min(...group.map(f => f.created.getTime()))),
-                        endTime: new Date(Math.max(...group.map(f => f.created.getTime()))),
+                        endTime: new Date(Math.max(...group.map(f => f.lastUpdate.getTime()))),
                         created: new Date()
                     };
 
                     const insertResult = await db.collection<FactionFight>('faction-fights').insertOne(factionFight);
                     for (const f of group) {
-                        const newAttempts = (typeof f.factionAssignmentAttempts === 'number') ? f.factionAssignmentAttempts + 1 : 1;
-                        fightsToSave.push({
-                            ...f,
-                            factionAssignmentAttempts: newAttempts,
-                            factionFightId: insertResult.insertedId as unknown as import('mongodb').ObjectId
-                        });
+                        f.factionFightId = insertResult.insertedId.toString();
                     }
                 }
             }

@@ -3,7 +3,7 @@ import { ObjectId } from 'mongodb';
 export interface FactionFight {
     _id: ObjectId;
     factionId: string;
-    fightIds: Array<ObjectId>;
+    fightIds: Array<string>;
     memberAccountIds: Array<string>;
     startTime: Date;
     endTime: Date;
