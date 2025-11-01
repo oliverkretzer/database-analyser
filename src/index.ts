@@ -3,6 +3,7 @@ import { LokiLogger } from "./logger.js";
 import { Scheduler } from "./scheduler.js";
 import { AnticheatTask } from "./tasks/anticheat.task.js";
 import { FactionFightTask } from "./tasks/faction-fight.task.js";
+import { discordLogger } from "./discord-logger.js";
 
 class DatabaseAnalyzer {
 
@@ -17,6 +18,9 @@ class DatabaseAnalyzer {
 
         this.scheduler.registerTask(new AnticheatTask());
         this.scheduler.registerTask(new FactionFightTask());
+
+        // Initialize Discord logger (non-blocking)
+        discordLogger.init().catch((e) => this.logger.warn('Discord logger init failed', { error: String(e) }));
 
         this.errorHandling();
         this.logger.info('Database Analyzer started with scheduled tasks.');

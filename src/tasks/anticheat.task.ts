@@ -1,4 +1,5 @@
 import { Database } from '../database.js';
+import { discordLogger } from '../discord-logger.js';
 import { Schedule } from '../enums/schedule.enum.js';
 import { fightHelper } from '../helper/fight-helper.js';
 import { PlayerFight } from '../interfaces/anticheat/player-fight.interface.js';
@@ -33,6 +34,19 @@ export class AnticheatTask implements ITask {
             if (analysis) {
                 fight.analysis = analysis;
                 fightsToSave.push(fight);
+
+                if (fight.analysis.hitRate > 0.35) {
+                    await discordLogger.sendEvent('anticheat_fight_detection', {
+                        fightId: fight._id.toString(),
+                        accountId: fight.accountId,
+                        hitRate: fight.analysis.hitRate,
+                        serverHitRate: fight.analysis.serverHitRate,
+                        totalHits: fight.analysis.hitCount,
+                        totalShots: fight.analysis.shotCount,
+                        shouldHitButDidNot: fight.analysis.shouldHitButDidNot,
+                        aimingOnTargetHitCount: fight.analysis.aimingOnTargetHitCount
+                    });
+                }
             }
         }
 
@@ -45,6 +59,9 @@ export class AnticheatTask implements ITask {
                     }
                 }))
             );
+            await discordLogger.sendEvent('anticheat_fight_analysis_completed', {
+                analyzedFights: fightsToSave.length
+            });
         }
         logger.info(`Anticheat analysis completed for ${fightsToSave.length} fights.`);
     }

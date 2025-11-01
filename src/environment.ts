@@ -11,5 +11,8 @@ export const env: IEnvironment = {
     MONGODB_DB_NAME: parsedEnv.MONGODB_DB_NAME,
     LOKI_URL: parsedEnv.LOKI_URL,
     LOKI_USER: parsedEnv.LOKI_USER,
-    LOKI_PASSWORD: parsedEnv.LOKI_PASSWORD
+    LOKI_PASSWORD: parsedEnv.LOKI_PASSWORD,
+    // Discord (optional)
+    DISCORD_API_BASE: parsedEnv.DISCORD_API_BASE,
+    DISCORD_API_KEY: parsedEnv.DISCORD_API_KEY
 };
