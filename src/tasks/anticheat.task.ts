@@ -35,7 +35,13 @@ export class AnticheatTask implements ITask {
                 fight.analysis = analysis;
                 fightsToSave.push(fight);
 
-                if (fight.analysis.hitRate > 0.35) {
+                if (
+                    fight.analysis.hitRate > 0.35 || 
+                    fight.analysis.serverHitRate > 0.4 || 
+                    fight.analysis.distFlag > 60 || 
+                    fight.analysis.angleFlag > 60 ||
+                    fight.analysis.boneCenterDistanceFlag > 60
+                ) {
                     await discordLogger.sendEvent('anticheat_fight_detection', {
                         fightId: fight._id.toString(),
                         accountId: fight.accountId,
