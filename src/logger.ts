@@ -4,7 +4,6 @@ import http from 'http';
 
 export class LokiLogger {
     private url: string;
-    private auth: string;
 
     constructor() {
         if (!env.LOKI_URL) {
@@ -16,7 +15,6 @@ export class LokiLogger {
         }
 
         this.url = env.LOKI_URL;
-        this.auth = `Basic ${Buffer.from(`${env.LOKI_USER}:${env.LOKI_PASSWORD}`).toString('base64')}`;
     }
 
     async log(level: string, message: string, meta: Record<string, unknown> = {}) {
@@ -38,8 +36,7 @@ export class LokiLogger {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Content-Length': Buffer.byteLength(postData),
-                ...(this.auth && { 'Authorization': this.auth })
+                'Content-Length': Buffer.byteLength(postData)
             }
         };
 
