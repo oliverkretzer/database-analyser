@@ -9,6 +9,11 @@ export interface FightAnalyse {
     boneCenterDistanceFlag: number;
     aimAlignmentFlag: number;
 
+    magicDamageFlag: number;
+    magicDamageSequences: number;
+
+    invalidDamageFlag: number;
+
     shotCount: number;
     hitCount: number;
     hitRate: number;
@@ -41,6 +46,27 @@ export interface FightAnalyse {
     highRange: number;
     noRange: number;
 
+    // Hit Range Statistics
+    lowRangeHits: number;
+    midRangeHits: number;
+    highRangeHits: number;
+    lowRangeHitRate: number;
+    midRangeHitRate: number;
+    highRangeHitRate: number;
+
+    // Movement & Aiming Correlation
+    stationaryHitCount: number;
+    stationaryHitRate: number;
+    movementHitRateDrop: number; // Prozentuale Differenz zwischen stationary und moving
+    suspiciousMovementTracking: boolean; // Flag wenn Hit Rate bei Movement zu hoch
+
+    // Statistical Anomalies
+    damageVariance: number; // Standard Deviation des Schadens
+    damageConsistencyFlag: number; // Flag wenn Damage zu konsistent (niedrige Variance)
+
     weapons: Array<{ weaponHash: number; shots: number }>;
     boneHits: Array<{ bone: string; count: number }>;
+
+    // Beispiel Verwendung:
+    maxDamage?: number;
 }

@@ -1,3 +1,4 @@
+import { ObjectId } from 'mongodb';
 import { Database } from '../database.js';
 import { discordLogger } from '../discord-logger.js';
 import { Schedule } from '../enums/schedule.enum.js';
@@ -5,6 +6,7 @@ import { fightHelper } from '../helper/fight-helper.js';
 import { PlayerFight } from '../interfaces/anticheat/player-fight.interface.js';
 import { ITask } from '../interfaces/task.interface.js';
 import { LokiLogger } from '../logger.js';
+import SimpleAccount from '../interfaces/faction-fight/simple-account.interface.js';
 
 export class AnticheatTask implements ITask {
     public name: string;
@@ -40,17 +42,29 @@ export class AnticheatTask implements ITask {
                     fight.analysis.serverHitRate > 0.4 || 
                     fight.analysis.distFlag > 60 || 
                     fight.analysis.angleFlag > 60 ||
-                    fight.analysis.boneCenterDistanceFlag > 60
+                    fight.analysis.boneCenterDistanceFlag > 60 ||
+                    fight.analysis.aimingOnTargetRate > 0.8 ||
+                    fight.analysis.shouldHitRate > 0.8
                 ) {
+                    if (fight.analysis.shotCount < 20) continue;
+
+                    const account: SimpleAccount | null = await this.getAccountById(database, fight.accountId);
+                    if (!account) continue;
+
                     await discordLogger.sendEvent('anticheat_fight_detection', {
                         fightId: fight._id.toString(),
                         accountId: fight.accountId,
+                        username: account.username,
                         hitRate: fight.analysis.hitRate,
                         serverHitRate: fight.analysis.serverHitRate,
                         totalHits: fight.analysis.hitCount,
                         totalShots: fight.analysis.shotCount,
                         shouldHitButDidNot: fight.analysis.shouldHitButDidNot,
-                        aimingOnTargetHitCount: fight.analysis.aimingOnTargetHitCount
+                        aimingOnTargetHitCount: fight.analysis.aimingOnTargetHitCount,
+                        lowRange: fight.analysis.lowRange,
+                        midRange: fight.analysis.midRange,
+                        highRange: fight.analysis.highRange,
+                        damageDetails: JSON.stringify(fight.analysis.detailedDamage),
                     });
                 }
             }
@@ -70,5 +84,19 @@ export class AnticheatTask implements ITask {
             });
         }
         logger.info(`Anticheat analysis completed for ${fightsToSave.length} fights.`);
+    }
+
+    async getAccountById(database: Database, accountId: string): Promise<SimpleAccount | null> {
+        const db = database.database;
+        if (!db) {
+            return null;
+        }
+
+        const account = await db.collection<SimpleAccount>('accounts').findOne({ _id: new ObjectId(accountId) });
+        if (!account) {
+            return null;
+        }
+
+        return account;
     }
 }

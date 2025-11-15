@@ -1,9 +1,9 @@
 import { Database } from "./database.js";
 import { LokiLogger } from "./logger.js";
 import { Scheduler } from "./scheduler.js";
-import { AnticheatTask } from "./tasks/anticheat.task.js";
 import { FactionFightTask } from "./tasks/faction-fight.task.js";
 import { discordLogger } from "./discord-logger.js";
+import { AnticheatTask } from "./tasks/anticheat.task.js";
 
 class DatabaseAnalyzer {
 
